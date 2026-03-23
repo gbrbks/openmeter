@@ -73,6 +73,12 @@ func initializeApplication(ctx context.Context, conf config.Configuration) (Appl
 		Client: client,
 		Logger: logger,
 	}
+	aggregationConfiguration := conf.Aggregation
+	clickHouseAggregationConfiguration := aggregationConfiguration.ClickHouse
+	clickHouseMigrator := common.ClickHouseMigrator{
+		Config: clickHouseAggregationConfiguration,
+		Logger: logger,
+	}
 	ingestConfiguration := conf.Ingest
 	kafkaIngestConfiguration := ingestConfiguration.Kafka
 	kafkaConfiguration := kafkaIngestConfiguration.KafkaConfiguration
@@ -180,8 +186,6 @@ func initializeApplication(ctx context.Context, conf config.Configuration) (Appl
 		cleanup()
 		return Application{}, nil, err
 	}
-	aggregationConfiguration := conf.Aggregation
-	clickHouseAggregationConfiguration := aggregationConfiguration.ClickHouse
 	v4, cleanup8, err := common.NewClickHouse(ctx, clickHouseAggregationConfiguration, tracer, meter, logger)
 	if err != nil {
 		cleanup7()
@@ -249,6 +253,7 @@ func initializeApplication(ctx context.Context, conf config.Configuration) (Appl
 	application := Application{
 		GlobalInitializer:  globalInitializer,
 		Migrator:           migrator,
+		ClickHouseMigrator: clickHouseMigrator,
 		BrokerOptions:      brokerOptions,
 		EventPublisher:     eventbusPublisher,
 		EntClient:          client,
@@ -281,6 +286,7 @@ func initializeApplication(ctx context.Context, conf config.Configuration) (Appl
 type Application struct {
 	common.GlobalInitializer
 	common.Migrator
+	common.ClickHouseMigrator
 
 	BrokerOptions      kafka.BrokerOptions
 	EventPublisher     eventbus.Publisher

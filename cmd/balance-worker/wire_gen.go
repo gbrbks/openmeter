@@ -65,6 +65,12 @@ func initializeApplication(ctx context.Context, conf config.Configuration) (Appl
 		Client: client,
 		Logger: logger,
 	}
+	aggregationConfiguration := conf.Aggregation
+	clickHouseAggregationConfiguration := aggregationConfiguration.ClickHouse
+	clickHouseMigrator := common.ClickHouseMigrator{
+		Config: clickHouseAggregationConfiguration,
+		Logger: logger,
+	}
 	eventsConfiguration := conf.Events
 	balanceWorkerConfiguration := conf.BalanceWorker
 	ingestConfiguration := conf.Ingest
@@ -126,8 +132,6 @@ func initializeApplication(ctx context.Context, conf config.Configuration) (Appl
 		return Application{}, nil, err
 	}
 	entitlementsConfiguration := conf.Entitlements
-	aggregationConfiguration := conf.Aggregation
-	clickHouseAggregationConfiguration := aggregationConfiguration.ClickHouse
 	v3, cleanup7, err := common.NewClickHouse(ctx, clickHouseAggregationConfiguration, tracer, meter, logger)
 	if err != nil {
 		cleanup6()
@@ -337,10 +341,11 @@ func initializeApplication(ctx context.Context, conf config.Configuration) (Appl
 		Logger: logger,
 	}
 	application := Application{
-		GlobalInitializer: globalInitializer,
-		Migrator:          migrator,
-		Runner:            runner,
-		Logger:            logger,
+		GlobalInitializer:  globalInitializer,
+		Migrator:           migrator,
+		ClickHouseMigrator: clickHouseMigrator,
+		Runner:             runner,
+		Logger:             logger,
 	}
 	return application, func() {
 		cleanup9()
@@ -360,6 +365,7 @@ func initializeApplication(ctx context.Context, conf config.Configuration) (Appl
 type Application struct {
 	common.GlobalInitializer
 	common.Migrator
+	common.ClickHouseMigrator
 	common.Runner
 
 	Logger *slog.Logger
