@@ -53,14 +53,15 @@ filter[labels.key_1][eq]=val     # dot-notation: only the FIRST dot is a delimit
 
 The Go types accept a **superset** of what each matching OAS `Common.*FieldFilter` type advertises. Operators marked with † are Go-only extensions — the OAS does not document them, so **do not rely on them as public contract**. See `../api/rules/aip-160-filtering.md` for the canonical per-OAS-type operator set.
 
-| Go type             | Accepted operators                                                                 |
-| ------------------- | ---------------------------------------------------------------------------------- |
-| `FilterString`      | eq, neq, contains, oeq, ocontains, gt†, gte†, lt†, lte†, exists†, nexists†         |
-| `FilterStringExact` | eq, neq, oeq                                                                       |
-| `StringFilter`      | eq, neq, contains (internal convenience — not a Common type)                       |
-| `FilterNumeric`     | eq, gt, gte, lt, lte, neq†, oeq†                                                   |
-| `FilterDateTime`    | eq, gt, gte, lt, lte (RFC-3339 values, parsed at convert-time)                     |
-| `FilterBoolean`     | eq (`true`/`false` literals — wraps the bare OAS scalar)                           |
+| Go type             | Accepted operators                                                         |
+| ------------------- | -------------------------------------------------------------------------- |
+| `FilterString`      | eq, neq, contains, oeq, ocontains, gt†, gte†, lt†, lte†, exists†, nexists† |
+| `FilterStringExact` | eq, neq, oeq                                                               |
+| `FilterULID`        | eq, neq, oeq, contains, ocontains, exists†                                         |
+| `StringFilter`      | eq, neq, contains (internal convenience — not a Common type)               |
+| `FilterNumeric`     | eq, gt, gte, lt, lte, neq†, oeq†                                           |
+| `FilterDateTime`    | eq, gt, gte, lt, lte (RFC-3339 values, parsed at convert-time)             |
+| `FilterBoolean`     | eq (`true`/`false` literals — wraps the bare OAS scalar)                   |
 
 ### Multi-filter semantics
 
